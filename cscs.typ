@@ -80,7 +80,19 @@
 // ---------------------------------------------------------------------------
 // Frame title for ordinary slides.
 #let frametitle(title) = {
-  text(weight: "bold", size: 14pt, fill: cscs-grey, title)
+  // Shrink the title to fit one line if it would otherwise overflow the
+  // content width. `measure` reports the natural (unbroken) width; `layout`
+  // gives the available width after page margins. Short titles are untouched.
+  layout(size => {
+    let make = sz => text(weight: "bold", size: sz, fill: cscs-grey, title)
+    let base = make(14pt)
+    let w = measure(base).width
+    if w > size.width {
+      make(14pt * size.width / w)
+    } else {
+      base
+    }
+  })
   v(1mm)
 }
 
@@ -236,11 +248,9 @@
 // `baseline: -0.5pt` lowers the marker so the square sits on the text
 // x-height instead of riding above the cap height.
 #let cscs-list(body) = {
-  set list(spacing: 1.5em, marker: (
-    box(inset: (top: 0.7mm), box(width: 1mm, height: 1mm, fill: cscs-red)),
-    text(fill: cscs-grey)[--],
-    text(fill: black)[#sym.bullet],
-  ))
+  // Same red square marker at every nesting level (sub-lists included).
+  set list(spacing: 1.5em,
+    marker: box(inset: (top: 0.7mm), box(width: 1mm, height: 1mm, fill: cscs-red)))
   show list: set text(size: 0.9em)
   body
 }
